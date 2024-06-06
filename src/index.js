@@ -62,6 +62,13 @@ function submitCityName(event) {
   searchCity(searchFormInput.value);
 }
 
+function formatDay(timestamp) {
+  let date = new Date(timestamp * 1000);
+  let days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sun"];
+
+  return days[date.getDay()];
+}
+
 function getForecast(city) {
   let apiKey = "bfa4e3a0ac7o3a4bt6f40d35c51eab14";
   let apiURL = `https://api.shecodes.io/weather/v1/forecast?query=${city}&key=${apiKey}&units=metric`;
@@ -69,31 +76,42 @@ function getForecast(city) {
 }
 
 function displayForecast(response) {
-
   let days = ["Tue", "Wed", "Thur", "Fri", "Sat"];
   let forecastHTML = "";
 
-  days.forEach(function (day) {
-    forecastHTML =
-      forecastHTML +
-      `
+  response.data.daily.forEach(function (day, index) {
+    if (index < 5) {
+      forecastHTML =
+        forecastHTML +
+        `
      <div class="weather-daily-forecast">
-            <div class="weather-daily-forecast-date">${day}</div>
+            <div class="weather-daily-forecast-date">${formatDay(
+              day.time
+            )}</div>
             <br />
+            <div>
             <img
-              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAALEgAACxIB0t1+/AAAAdVJREFUaN7tmc1thDAQRimBElwCJVBCSvAxR5fgEiiBEiiBErhyIx24A2cc2WhiAf4ZA1rJkZ4UZZPN9/AwHrON1rr5ZJoqUAWqQBWoAlWgxJf++WaAAGZAAdpD2dfM7zDS/yopAGE6YDoIHMLIdK8KQIAWGIAtQ8Bh/r59bQWQjCBILCkSJIF1XVuAA9Jivm9ROd0ukS0AQTtgA7SH+Vn31EoEBSAMA2YUUAHiJDyWcCtBuidIArZEroJewVEpjQSJjiIgMsMbpHdjf53sCcEWSxEYCQKOyZQhkshZBZYkYEtHeLVPQSGJnHIS0QI2/FIo+L+VILTXOUVA3BD+D3Q/pAqoFIEebUxFQQLJN/Ojo0TEqDG/JgBv1hdgeVNAP4CKPSvkCKiCQc1KSMRs2+x902hO/Z4cYFhgWOQHY8zo9hOKgCCGH71BEXcqHjEBKDft5gowypVH4YeLgKE9ZSO10cxz7z7TFJqxOEUgZxyYbPi+0M4uSRuZPYCnCPBA6TwrYCWWyFbJImo/FTMpM6pAG5CYvDO0LDii7x2JNAtdSGxuQyp41Q87UqkHW8NJzYsbw+8d6Y5Hi+7qbw8IyOIPd9HRVD8qUD8fqAJVoApUgSrwqfwCJ6xaZshM+xMAAAAASUVORK5CYII="
+              src="${day.condition.icon_url}"
               alt=""
               width="36"
+              class="weather-forecast-icon"
             />
+            </div>
             <br />
             <div class="weather-forecast-temperatures">
-              <span class="weather-forecast-temperature-max"> 18&deg; </span>
-              <span class="weather-forecast-temperature-min"> 12&deg; </span>
+              <span class="weather-forecast-temperature-max"> <strong>${Math.round(
+                day.temperature.maximum
+              )}&deg; </strong></span>
+              <span class="weather-forecast-temperature-min">${Math.round(
+                day.temperature.minimum
+              )}&deg; </span>
             </div>
           </div>
         </div>
     `;
+    }
   });
+
   let forecastElement = document.querySelector("#forecast");
   forecastElement.innerHTML = forecastHTML;
 }
